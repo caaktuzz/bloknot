@@ -103,7 +103,7 @@ def dela(): # Напоминалки
     if len(general["напоминалки"]) > 0:
       for nap in general['напоминалки']:
         print('#', general['напоминалки'][nap]['num'],'/',general['напоминалки'][nap]['dt'],'/',general['напоминалки'][nap]['text'][0:30]+'...'),time.sleep(0.1)
-    else: print("список пуст."), time.sleep(0.1)
+    else: print("список пуст."); time.sleep(0.1)
      
     print("[1] - Новое напоминание"); time.sleep(0.1)
     print("[2] - Весь список"); time.sleep(0.1)
