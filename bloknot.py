@@ -48,7 +48,7 @@ def zametki():# Заметки
     else: print("список пуст.",),time.sleep(0.1)
 
     print('[1] - Новая заметка'),time.sleep(0.1)
-    print('[2] - Весь список'),time.sleep(0.1)
+    print('[2] - Весь список'); time.sleep(0.1)
     print('[3] - Назад'),time.sleep(0.1)
     de = input('>> ')
 
