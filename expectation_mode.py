@@ -14,11 +14,16 @@ from plyer import notification  # pip install plyer
 
 BASE_DIR = __file__.replace('expectation_mode.py', '')
 data_path = BASE_DIR + 'bloknot_data.json'
-logs_path = BASE_DIR + 'bloknot_logs.txt'
+logs_path = BASE_DIR + 'expectation_mode_logs.txt'
 icon_path = BASE_DIR + 'sahur-logo.ico'
 
 LOCK_PORT = 28711
 lock_socket = None
+
+general = { "заметки" : {},
+            "напоминалки" : {},
+            "pid": 0}
+log_msg_num = 0
 
 def check_proc_clone():
   global lock_socket
@@ -39,11 +44,6 @@ def check_proc_clone():
       raise   
   lock_socket = sct
 
-
-general = { "заметки" : {},
-            "напоминалки" : {},
-            "pid": 0}
-log_msg_num = 0
 
 def log_write(filepath, data):
   with open(filepath, 'w', encoding='utf-8') as logFile:
@@ -88,8 +88,8 @@ def _notification(nap):
  
 def main() :
     check_proc_clone()
-    print('start')
-    log_write(logs_path, 'log file is created'); sleep(1)
+    #print('start')
+    log_write(logs_path, 'log file is created'); sleep(0.5)
     fired = set() 
     while True:
       try: 
@@ -98,7 +98,7 @@ def main() :
           dt_now = datetime.now().replace(microsecond=0)
           for nap in general['напоминалки']:
               dt_end = datetime.strptime(general['напоминалки'][nap]['dt_end'], "%Y-%m-%d %H:%M:%S")
-              print(f"\r {dt_now}  {general['напоминалки'][nap]}", end="", flush=True)
+              #print(f"\r {dt_now}  {general['напоминалки'][nap]}", end="", flush=True)
               if dt_end <= dt_now and nap not in fired:
                 if general['напоминалки'][nap]['status'] != "[выполнено]": 
                   log_append(logs_path, "есть уведомлениие")
