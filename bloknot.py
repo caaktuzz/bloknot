@@ -53,7 +53,7 @@ def zametki():# Заметки
     print('Последние заметки:'); time.sleep(0.2)
     if len(general['заметки']) > 0:
       for nap in general['заметки']:
-        print('#',general['заметки'][nap]['num'],'/',general['заметки'][nap]['dt'],'/',general['заметки'][nap]['title'][0:30]+'...')
+        print('#',general['заметки'][nap]['num'],'/',general['заметки'][nap]['dt'],'/',general['заметки'][nap]['title'][0:35]+'...')
         time.sleep(0.1)
     else: print("список пуст.",),time.sleep(0.1)
 
@@ -62,16 +62,34 @@ def zametki():# Заметки
     print('[3] - Назад');time.sleep(0.1)
     de = input('>> ')
 
+    def note_record(flag, Num):
+        if flag == True: print('[1] - Оставить старое')
+        new_record_title = input("Название: ")
+        if new_record_title == ' ': return
+        if new_record_title == '1' and flag == False: print("это новая заметка!"); return 
+        if new_record_title == '1' and flag == True: new_record_title = general['заметки'][Num]['title']
+
+        if flag == True: print('[1] - Оставить старое')
+        new_record = input("Содержание: ")
+        if new_record == ' ': return
+        if new_record == '1' and flag == False: print("это новая заметка!"); return 
+        if new_record == '1' and flag == True: new_record = general['заметки'][Num]['text']
+
+        if len(general['заметки']) > 0: 
+          for num in general['заметки']: number = general['заметки'][num]['num'] + 1
+        else: number = 1
+
+        if flag == True:
+          general['заметки'][Num]['title'] = new_record_title
+          general['заметки'][Num]['text'] = new_record
+          general['заметки'][Num]['dt'] = str(datetime.now())[:-7]
+        else:
+          general['заметки'][number] = {'num': number, 'dt': str(datetime.now())[:-7], 'title':new_record_title, 'text':new_record}
+
+        update_write = write()
+
     if de == '1':
-       new_record_title = input("Название: ")
-       if new_record_title == ' ': continue
-       new_record = input("Содержание: ")
-       if new_record_title == ' ': continue
-       if len(general['заметки']) > 0: 
-         for num in general['заметки']: number = general['заметки'][num]['num'] + 1
-       else: number = 1
-       general['заметки'][number] = {'num': number, 'dt': str(datetime.now())[:-7], 'title':new_record_title, 'text':new_record}
-       update_write = write()
+      note_record(False, None)
 
     elif de == '2': 
       for nap in general['заметки']:
@@ -85,13 +103,19 @@ def zametki():# Заметки
         if poisk in general['заметки']: 
           print('#',general['заметки'][poisk]['num'],'/',general['заметки'][poisk]['dt'],general['заметки'][nap]['title'],'\n',general['заметки'][poisk]['text'])
           time.sleep(0.1)
-          print('[1] - Изменить \n[2] - Удалить \n[3] - Назад')
+          print('[1] - Изменить \n[2] - Удалить \n[ ] - Назад')
           de = input('>> ')
+
           if de == '1':
-            print("функция пока недоступна"); time.sleep(1)
-          elif de == '2': 
-            del general['заметки'][poisk]
-            update_write = write()
+            note_record(True, poisk)
+
+          elif de == '2':  
+            print("[1] - Да, удалить заметку \n[2] - Нет, вернуться назад")
+            confirmation = input("Подтверждение: ")
+            if confirmation == '1': 
+              del general['заметки'][poisk]
+              update_write = write()
+
         else: print("такой нету"); time.sleep(1)
 
       elif de == '2':
@@ -103,8 +127,8 @@ def zametki():# Заметки
           print("заметки очищены"); time.sleep(1)
         else: continue
 
-      elif de == '3' or de == ' ': continue
-    elif de == '3' or de == ' ': return de
+      elif de == 'exit' or de == ' ': continue
+    elif de == 'exit' or de == ' ': return de
       
 
 def dela(): # Напоминалки
@@ -126,13 +150,13 @@ def dela(): # Напоминалки
 
     def nap_record(flag, Num):
       while True:
-        print('[1] - Оставить старое')
+        if flag == True: print('[1] - Оставить старое')
         new_record = input("Содержание: ")
         if new_record == ' ': break
         if new_record == '1' and flag == False: print("это новая напоминалка!"); continue 
         if new_record == '1' and flag == True: new_record = general['напоминалки'][Num]['text']
 
-        print('[1] - Оставить старое')
+        if flag == True: print('[1] - Оставить старое')
         new_record_dt_end = input("Время оповещения (ГГГГ-ММ-ДД ЧЧ:ММ:СС): ")
         if new_record_dt_end == '1' and flag == False: print("это новая напоминалка!"); continue 
         if new_record_dt_end == '1' and flag == True: new_record_dt_end = general['напоминалки'][Num]['dt_end']
@@ -214,7 +238,7 @@ def dela(): # Напоминалки
             except FileNotFoundError: print('файл "expectation_mode.exe" не найден'); time.sleep(1)
             
         elif de == '2':
-          print("пока недоступно. запустите программу в ручную"); time.sleep(2)
+          print("пока недоступно. остановите программу в ручную"); time.sleep(2)
           continue
           _read = read()
           #proc.terminate()
