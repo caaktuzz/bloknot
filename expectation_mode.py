@@ -100,6 +100,7 @@ def main() :
               dt_end = datetime.strptime(general['напоминалки'][nap]['dt_end'], "%Y-%m-%d %H:%M:%S")
               print(f"\r {dt_now}  {general['напоминалки'][nap]}", end="", flush=True)
               if dt_end <= dt_now and nap not in fired:
+                if general['напоминалки'][nap]['status'] != "[выполнено]": 
                   log_append(logs_path, "есть уведомлениие")
                   _notification(general['напоминалки'][nap]['text'])
                   general['напоминалки'][nap]['status'] = 1
