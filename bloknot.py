@@ -53,7 +53,8 @@ def zametki():# Заметки
     print('Последние заметки:'); time.sleep(0.2)
     if len(general['заметки']) > 0:
       for nap in general['заметки']:
-        print('#',general['заметки'][nap]['num'],'/',general['заметки'][nap]['dt'],'/',general['заметки'][nap]['title'][0:30]+'...');time.sleep(0.1)
+        print('#',general['заметки'][nap]['num'],'/',general['заметки'][nap]['dt'],'/',general['заметки'][nap]['title'][0:30]+'...')
+        time.sleep(0.1)
     else: print("список пуст.",),time.sleep(0.1)
 
     print('[1] - Новая заметка');time.sleep(0.1)
@@ -74,14 +75,16 @@ def zametki():# Заметки
 
     elif de == '2': 
       for nap in general['заметки']:
-        print('#',general['заметки'][nap]['num'],'/',general['заметки'][nap]['dt'],'/',general['заметки'][nap]['title'][0:30]+'...');time.sleep(0.1)
+        print('#',general['заметки'][nap]['num'],'/',general['заметки'][nap]['dt'],'/',general['заметки'][nap]['title'][0:30]+'...')
+        time.sleep(0.1)
       
       print('[1] - Выбрать запись \n[2] - Удалить всё \n[3] - Назад')
       de = input('>> ')
       if de == '1': 
         poisk = input('Введите номер записи: ')
         if poisk in general['заметки']: 
-          print('#',general['заметки'][poisk]['num'],'/',general['заметки'][poisk]['dt'],general['заметки'][nap]['title'],'\n',general['заметки'][poisk]['text']);time.sleep(0.1)
+          print('#',general['заметки'][poisk]['num'],'/',general['заметки'][poisk]['dt'],general['заметки'][nap]['title'],'\n',general['заметки'][poisk]['text'])
+          time.sleep(0.1)
           print('[1] - Изменить \n[2] - Удалить \n[3] - Назад')
           de = input('>> ')
           if de == '1':
@@ -111,7 +114,8 @@ def dela(): # Напоминалки
     print('Последние напоминалки:'); time.sleep(0.2)
     if len(general["напоминалки"]) > 0:
       for nap in general['напоминалки']:
-        print('#', general['напоминалки'][nap]['num'],'/',general['напоминалки'][nap]['dt'],'/',general['напоминалки'][nap]['text'][0:30]+'...',general['напоминалки'][nap]['status']);time.sleep(0.1)
+        print('#', general['напоминалки'][nap]['num'],'/',general['напоминалки'][nap]['dt'],'/',general['напоминалки'][nap]['text'][0:30]+'...',general['напоминалки'][nap]['status'])
+        time.sleep(0.1)
     else: print("список пуст."); time.sleep(0.1)
      
     print("[1] - Новое напоминание"); time.sleep(0.1)
@@ -122,35 +126,34 @@ def dela(): # Напоминалки
 
     def nap_record(flag, Num):
       while True:
-       print('[1] - Оставить старое')
-       new_record = input("Содержание: ")
-       if new_record == '1' and flag == False: print("это новая напоминалка!"); continue 
-       else: new_record = general['напоминалки'][Num]['text']
+        print('[1] - Оставить старое')
+        new_record = input("Содержание: ")
+        if new_record == ' ': break
+        if new_record == '1' and flag == False: print("это новая напоминалка!"); continue 
+        if new_record == '1' and flag == True: new_record = general['напоминалки'][Num]['text']
 
-       print('[1] - Оставить старое')
-       new_record_dt_end = input("Время оповещения (ГГГГ-ММ-ДД ЧЧ:ММ:СС): ")
-       if new_record_dt_end == '1' and flag == False: print("это новая напоминалка!"); continue 
-       else: new_record_dt_end = general['напоминалки'][Num]['dt_end']
+        print('[1] - Оставить старое')
+        new_record_dt_end = input("Время оповещения (ГГГГ-ММ-ДД ЧЧ:ММ:СС): ")
+        if new_record_dt_end == '1' and flag == False: print("это новая напоминалка!"); continue 
+        if new_record_dt_end == '1' and flag == True: new_record_dt_end = general['напоминалки'][Num]['dt_end']
 
-       if new_record == ' ': continue
-
-       if len(general['напоминалки']) > 0: 
+        if len(general['напоминалки']) > 0: 
           for num in general['напоминалки']: number = general['напоминалки'][num]['num'] + 1
-       else: number = 1
+        else: number = 1
 
-       if flag == True: 
-         general['напоминалки'][Num]['dt']=str(datetime.now())[:-7]
-         general['напоминалки'][Num]['dt_end']=new_record_dt_end
-         general['напоминалки'][Num]['text']=new_record
-         write()
-       else:
-         general['напоминалки'][number] = {'num':number, 
-                                           'dt':str(datetime.now())[:-7],
-                                           'dt_end':new_record_dt_end, 
-                                           'text':new_record, 
-                                           'status':"[не выполнено]"}
-         update_write = write()
-       break
+        if flag == True: 
+          general['напоминалки'][Num]['dt']=str(datetime.now())[:-7]
+          general['напоминалки'][Num]['dt_end']=new_record_dt_end
+          general['напоминалки'][Num]['text']=new_record
+          general['напоминалки'][Num]['status']="[не выполнено]"
+        else:
+          general['напоминалки'][number] = {'num':int(number), 
+                                            'dt':str(datetime.now())[:-7],
+                                            'dt_end':new_record_dt_end, 
+                                            'text':new_record, 
+                                            'status':"[не выполнено]"}
+        update_write = write()
+        break
 
     if de == '1':
       nap_record(False, None)
@@ -176,8 +179,11 @@ def dela(): # Напоминалки
           elif de == '2':
             nap_record(True, poisk)
           elif de == '3': 
-            del general['напоминалки'][poisk]
-            update_write = write()
+            print("[1] - Да, удалить напоминалку \n[2] - Нет, вернуться назад")
+            confirmation = input("Подтверждение: ")
+            if confirmation == '1': 
+              del general['напоминалки'][poisk]
+              update_write = write()
 
         else: print("такой нету"); time.sleep(1)
       elif de == '2':
@@ -198,10 +204,10 @@ def dela(): # Напоминалки
         print("[2] - Выключить")
         de = input(">> ")
         if de == '1':
-            print("пока недоступно. запустите программу в ручную"); time.sleep(2)
-            continue
+            #print("пока недоступно. запустите программу в ручную"); time.sleep(2)
+            #continue
             try: 
-              proc = subprocess.Popen(r"D:\.Profile\Desktop\hackerskie_codi\Python\projects\output\expectation_mode.exe")
+              proc = subprocess.Popen(['python', f"{BASE_DIR}expectation_mode.py"])
               print("запущено успешно"); time.sleep(1)
               general["pid"] = proc.pid
               update_write = write()
