@@ -1,7 +1,8 @@
 # блокнот / version: 1.1 / 22.08.2026 / caktuz
 
-import os
-from sys import platform
+from os import system, kill, path
+import signal
+import sys
 import subprocess
 import json
 import time
@@ -9,16 +10,22 @@ from datetime import datetime
 
 BASE_DIR = __file__.replace('bloknot.py', '')
 
-data_path = BASE_DIR + 'bloknot_data.json'
-logs_path = BASE_DIR + 'bloknot_logs.txt'
-icon_path = BASE_DIR + 'sahur-logo.ico'
-PID_FILE =  BASE_DIR + 'expectation.pid'
+if getattr(sys, 'frozen', False):              # PyInstaller onefile
+    BASE_DIR = path.dirname(sys.executable)    # папка с exe
+else:
+    BASE_DIR = path.dirname(path.abspath(__file__))
+
+
+data_path = path.join(BASE_DIR, 'bloknot_data.json')
+expectation_mode_path = path.join(BASE_DIR, 'expectation_mode.exe')
+logs_path = path.join(BASE_DIR, 'expectation_mode_logs.txt')
+icon_path = path.join(BASE_DIR, 'sahur-logo.ico')
 
 general = { "заметки" : {},
             "напоминалки" : {},
             "pid": "" }
 
-if platform == 'win32': clearOutput = "cls"
+if sys.platform == 'win32': clearOutput = "cls"
 else: clearOutput = "clear"
 
 def write() : # запись 
@@ -42,13 +49,13 @@ def _exit():
 
 def menu(): # Главное меню
     print(" - - - Блокнот - - -")
-    print('| [1] - Заметки     |\n| [2] - Списки дел  |\n| [3] - Выход       |\n - - - - - - - - - -')
+    print('| [1] - Заметки     |\n| [2] - Напоминалки |\n| [3] - Выход       |\n - - - - - - - - - -')
     de = input('>> ')
     return de
     
 def zametki():# Заметки
   while True:
-    os.system(clearOutput)
+    system(clearOutput)
     _read = read()
     print('Последние заметки:'); time.sleep(0.2)
     if len(general['заметки']) > 0:
@@ -59,7 +66,7 @@ def zametki():# Заметки
 
     print('[1] - Новая заметка');time.sleep(0.1)
     print('[2] - Весь список');time.sleep(0.1)
-    print('[3] - Назад');time.sleep(0.1)
+    print('[ ] - Назад');time.sleep(0.1)
     de = input('>> ')
 
     def note_record(flag, Num):
@@ -101,7 +108,7 @@ def zametki():# Заметки
       if de == '1': 
         poisk = input('Введите номер записи: ')
         if poisk in general['заметки']: 
-          print('#',general['заметки'][poisk]['num'],'/',general['заметки'][poisk]['dt'],general['заметки'][nap]['title'],'\n',general['заметки'][poisk]['text'])
+          print('#',general['заметки'][poisk]['num'],'/',general['заметки'][poisk]['dt'],general['заметки'][poisk]['title'],'\n',general['заметки'][poisk]['text'])
           time.sleep(0.1)
           print('[1] - Изменить \n[2] - Удалить \n[ ] - Назад')
           de = input('>> ')
@@ -133,7 +140,7 @@ def zametki():# Заметки
 
 def dela(): # Напоминалки
   while True:
-    os.system(clearOutput)
+    system(clearOutput)
     _read = read()
     print('Последние напоминалки:'); time.sleep(0.2)
     if len(general["напоминалки"]) > 0:
@@ -158,6 +165,10 @@ def dela(): # Напоминалки
 
         if flag == True: print('[1] - Оставить старое')
         new_record_dt_end = input("Время оповещения (ГГГГ-ММ-ДД ЧЧ:ММ:СС): ")
+        try:
+            datetime.strptime(new_record_dt_end, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            print("неверный формат"); continue
         if new_record_dt_end == '1' and flag == False: print("это новая напоминалка!"); continue 
         if new_record_dt_end == '1' and flag == True: new_record_dt_end = general['напоминалки'][Num]['dt_end']
 
@@ -184,7 +195,8 @@ def dela(): # Напоминалки
 
     elif de == '2': 
       for nap in general['напоминалки']:
-        print('#',general['напоминалки'][nap]['num'],'/',general['напоминалки'][nap]['dt'],'/',general['напоминалки'][nap]['text'][0:30]+'...', general['напоминалки'][nap]['status']);time.sleep(0.1)
+        print('#',general['напоминалки'][nap]['num'],'/',general['напоминалки'][nap]['dt'],'/',general['напоминалки'][nap]['text'][0:30]+'...', general['напоминалки'][nap]['status'])
+        time.sleep(0.1)
 
       print('[1] - Выбрать запись \n[2] - Удалить всё \n[ ] - Назад')
       de = input('>> ')
@@ -192,12 +204,13 @@ def dela(): # Напоминалки
       if de == '1': 
         poisk = input('Введите номер записи: ')
         if poisk in general['напоминалки']: 
-          print('#',general['напоминалки'][poisk]['num'],'/',general['напоминалки'][poisk]['dt'],general['напоминалки'][nap]['status'],'\n',general['напоминалки'][poisk]['text'][0:30]);time.sleep(0.1)
+          print('#',general['напоминалки'][poisk]['num'],'/',general['напоминалки'][poisk]['dt'],'/',general['напоминалки'][poisk]['status'],'\n',general['напоминалки'][poisk]['text'][0:30])
+          time.sleep(0.1)
           print('[1] - Сменить статус \n[2] - Изменить \n[3] - Удалить \n[ ] - Назад')
           de = input('>> ')
           if de == '1':
-            if general['напоминалки'][nap]['status'] == "[выполнено]": general['напоминалки'][nap]['status'] = "[не выполнено]"
-            else: general['напоминалки'][nap]['status'] = "[выполнено]"
+            if general['напоминалки'][poisk]['status'] == "[выполнено]": general['напоминалки'][poisk]['status'] = "[не выполнено]"
+            else: general['напоминалки'][poisk]['status'] = "[выполнено]"
             write()
             print("готово"); time.sleep(1)
           elif de == '2':
@@ -229,51 +242,63 @@ def dela(): # Напоминалки
         de = input(">> ")
         if de == '1':
             #print("пока недоступно. запустите программу в ручную"); time.sleep(2)
-            #continue
+
             try: 
-              proc = subprocess.Popen(['python', f"{BASE_DIR}expectation_mode.py"])
+              proc = subprocess.Popen([expectation_mode_path])
               print("запущено успешно"); time.sleep(1)
               general["pid"] = proc.pid
               update_write = write()
             except FileNotFoundError: print('файл "expectation_mode.exe" не найден'); time.sleep(1)
             
         elif de == '2':
-          print("пока недоступно. остановите программу в ручную"); time.sleep(2)
-          continue
+          #print("пока недоступно. остановите программу в ручную"); time.sleep(2)
           _read = read()
-          #proc.terminate()
-          try: os.system(f"taskkill /F /T /PID {general["pid"]}") 
-          except: print("ошибка на моменте остановки"); time.sleep(3)
+          if sys.platform == 'win32':
+              stop_try = system(f"taskkill /F /T /PID {general['pid']}") 
+              time.sleep(2)
+              if stop_try == 0: 
+                print("остановили успешно"); time.sleep(1)
+          else:
+              kill(int(general['pid']), signal.SIGTERM) 
+
+          continue
+          #try: subprocess.run(["taskkill", "/F", "/PID", str(pid)], check=True)
+          #except: print("ошибка на моменте остановки"); time.sleep(3)
 
     elif de == '3' or de == ' ': return de
 
 
 
+def main():
+  while True:
+    try:
+      system(clearOutput)
+      _read = read()
 
-while True:
-  os.system(clearOutput)
-  _read = read()
+      a = menu()
 
-  a = menu()
+      if a == '1':
+        a = zametki()
+        if  a == '3' or a == ' ': continue
 
-  if a == '1':
-      a = zametki()
-      if  a == '3' or a == ' ': continue
+      elif a == '2':
+        a = dela()
+        if a == '3' or a == ' ': continue
 
-  elif a == '2':
-      a = dela()
-      if a == '3' or a == ' ': continue
+      elif a == '3' or a == ' ': safe_exit = _exit()
 
-  elif a == '3' or a == ' ': safe_exit = _exit()
+      else: continue
 
-  else: continue
+    except KeyboardInterrupt: 
+      _exit()
 
-  break
+if __name__ == '__main__': 
+    main()
   
 
 
 
 
-print(general)
-print('stop'), time.sleep(1)
+#print(general)
+#print('stop'), time.sleep(1)
     
