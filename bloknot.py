@@ -1,4 +1,4 @@
-# блокнот / version: 1.1 / 22.08.2026 / caktuz
+# блокнот / version: 1.2 / 17.11.2026 / caktuz
 
 from os import system, kill, path
 import signal
@@ -8,24 +8,23 @@ import json
 import time
 from datetime import datetime
 
-BASE_DIR = __file__.replace('bloknot.py', '')
-
+# paths setup
 if getattr(sys, 'frozen', False):              # PyInstaller onefile
     BASE_DIR = path.dirname(sys.executable)    # папка с exe
 else:
     BASE_DIR = path.dirname(path.abspath(__file__))
 
-
 data_path = path.join(BASE_DIR, 'bloknot_data.json')
 expectation_mode_path = path.join(BASE_DIR, 'expectation_mode.exe')
+expectation_mode_path_py = path.join(BASE_DIR, 'expectation_mode.py')
 logs_path = path.join(BASE_DIR, 'expectation_mode_logs.txt')
 icon_path = path.join(BASE_DIR, 'sahur-logo.ico')
 
-general = { "заметки" : {},
+general = { "заметки" : {}, # dict for bloknot_data.json
             "напоминалки" : {},
             "pid": "" }
 
-if sys.platform == 'win32': clearOutput = "cls"
+if sys.platform == 'win32': clearOutput = "cls" 
 else: clearOutput = "clear"
 
 def write() : # запись 
@@ -41,7 +40,7 @@ def read() : # чтение
     print('файл "bloknot_data.json" не найден'); time.sleep(1)
     _write = write()
 
-def _exit():
+def _exit(): # Выход с сохранением
   update_write = write()
   print("данные сохранены"); time.sleep(1)
   exit()
@@ -53,7 +52,7 @@ def menu(): # Главное меню
     de = input('>> ')
     return de
     
-def zametki():# Заметки
+def zametki(): # Заметки
   while True:
     system(clearOutput)
     _read = read()
@@ -242,9 +241,8 @@ def dela(): # Напоминалки
         de = input(">> ")
         if de == '1':
             #print("пока недоступно. запустите программу в ручную"); time.sleep(2)
-
             try: 
-              proc = subprocess.Popen([expectation_mode_path])
+              proc = subprocess.Popen([expectation_mode_path]) # для не скомпилированного напоминалкина используй переменную "expectation_mode_path_py"
               print("запущено успешно"); time.sleep(1)
               general["pid"] = proc.pid
               update_write = write()
@@ -258,7 +256,7 @@ def dela(): # Напоминалки
               time.sleep(2)
               if stop_try == 0: 
                 print("остановили успешно"); time.sleep(1)
-          else:
+          else: # for unix 
               kill(int(general['pid']), signal.SIGTERM) 
 
           continue
@@ -285,7 +283,7 @@ def main():
         a = dela()
         if a == '3' or a == ' ': continue
 
-      elif a == '3' or a == ' ': safe_exit = _exit()
+      elif a == '3' or a == ' ': _exit()
 
       else: continue
 
