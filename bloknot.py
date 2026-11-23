@@ -267,6 +267,7 @@ def dela(): # Напоминалки
 
 
 
+
 def main():
   while True:
     try:
